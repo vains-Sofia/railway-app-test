@@ -109,7 +109,7 @@ public class AuthorizationConfig {
     /**
      * 登录地址，前后端分离就填写完整的url路径，不分离填写相对路径
      */
-    private final String LOGIN_URL = "/login";
+    private final String LOGIN_URL = "https://flow-cloud.love/login";
 
     private static final String CUSTOM_CONSENT_REDIRECT_URI = "/oauth2/consent/redirect";
 
@@ -598,7 +598,7 @@ public class AuthorizationConfig {
                     设置token签发地址(http(s)://{ip}:{port}/context-path, http(s)://domain.com/context-path)
                     如果需要通过ip访问这里就是ip，如果是有域名映射就填域名，通过什么方式访问该服务这里就填什么
                  */
-                .issuer("http://192.168.1.102:8080")
+                .issuer("https://oauth.flow-cloud.love")
                 .build();
     }
 
