@@ -85,3 +85,6 @@ mybatis-plus:
 
 server:
   port: 5000
+  tomcat:
+    remoteip:
+      protocol-header: :Scheme
