@@ -1,9 +1,9 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/authorization-example?serverTimezone=UTC&userUnicode=true&characterEncoding=utf-8
+    url: jdbc:mysql://containers-us-west-162.railway.app:7705/authorization-example?serverTimezone=UTC&userUnicode=true&characterEncoding=utf-8
     username: root
-    password: root
+    password: 4S1xeafgY6n8J6wcFsdr
   security:
     oauth2:
       client:
@@ -71,11 +71,17 @@ spring:
             authorization-uri: https://gitee.com/oauth/authorize
           github:
             user-name-attribute: login
-  jackson:
-    default-property-inclusion: non_null
+  data:
+    redis:
+      host: containers-us-west-139.railway.app
+      port: 6312
+      password: sSGcSy1Uxb5G9QU8o2nk
 
 # Mybatis-Plus 配置
 mybatis-plus:
   # 扫描mapper文件
   mapper-locations:
     - classpath:com/vains/mapper/xml/*Mapper.xml
+
+server:
+  port: 5000
