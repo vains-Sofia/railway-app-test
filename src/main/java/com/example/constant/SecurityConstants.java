@@ -10,17 +10,17 @@ public class SecurityConstants {
     /**
      * 授权确认页面地址
      */
-    public static final String DEVICE_ACTIVATED_URI = "/activated";
+    public static final String DEVICE_ACTIVATED_URI = "https://flow-cloud.love/activated";
 
     /**
      * 授权确认页面地址
      */
-    public static final String DEVICE_ACTIVATE_URI = "/activate";
+    public static final String DEVICE_ACTIVATE_URI = "https://flow-cloud.love/activate";
 
     /**
      * 授权确认页面地址
      */
-    public static final String CONSENT_PAGE_URI = "/oauth2/consent";
+    public static final String CONSENT_PAGE_URI = "https://flow-cloud.love/consent";
 
     /**
      * 微信登录相关参数——openid：用户唯一id
