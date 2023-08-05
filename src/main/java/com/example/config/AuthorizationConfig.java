@@ -109,7 +109,7 @@ public class AuthorizationConfig {
     /**
      * 登录地址，前后端分离就填写完整的url路径，不分离填写相对路径
      */
-    private final String LOGIN_URL = "http://127.0.0.1:5173/login";
+    private final String LOGIN_URL = "/login";
 
     private static final String CUSTOM_CONSENT_REDIRECT_URI = "/oauth2/consent/redirect";
 
