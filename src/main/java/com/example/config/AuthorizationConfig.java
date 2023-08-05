@@ -109,7 +109,7 @@ public class AuthorizationConfig {
     /**
      * 登录地址，前后端分离就填写完整的url路径，不分离填写相对路径
      */
-    private final String LOGIN_URL = "https://flow-cloud.love/login";
+    private final String LOGIN_URL = "https://vains-sofia.gitee.io/login";
 
     private static final String CUSTOM_CONSENT_REDIRECT_URI = "/oauth2/consent/redirect";
 
@@ -350,6 +350,7 @@ public class AuthorizationConfig {
         configuration.addAllowedOrigin("http://127.0.0.1:5173");
         configuration.addAllowedOrigin("https://flow-cloud.love");
         configuration.addAllowedOrigin("http://192.168.1.102:5173");
+        configuration.addAllowedOrigin("https://vains-sofia.gitee.io");
         // 设置跨域访问可以携带cookie
         configuration.setAllowCredentials(true);
         // 允许所有的请求方法 ==> GET POST PUT Delete
