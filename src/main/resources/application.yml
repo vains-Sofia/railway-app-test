@@ -87,4 +87,4 @@ server:
   port: 5000
   tomcat:
     remoteip:
-      protocol-header: :Scheme
+      protocol-header: Scheme
