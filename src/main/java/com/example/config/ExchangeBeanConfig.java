@@ -22,7 +22,7 @@ public class ExchangeBeanConfig {
      */
     @Bean
     public MineExchange mineExchange() {
-        WebClient webClient = WebClient.builder().baseUrl("https://authorizationserver-17683906991.b4a.run").build();
+        WebClient webClient = WebClient.builder().baseUrl("https://authorization-server-0z99.onrender.com").build();
         HttpServiceProxyFactory httpServiceProxyFactory =
                 HttpServiceProxyFactory.builder(WebClientAdapter.forClient(webClient))
                         .build();
