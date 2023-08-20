@@ -4,6 +4,7 @@ COPY . .
 RUN mvn clean package -DskipTests && pwd && ls
 
 FROM eclipse-temurin:17-jre as builder
+WORKDIR application
 ARG JAR_FILE=/app/target/*.jar
 COPY --from=build ${JAR_FILE} application.jar
 RUN java -Djarmode=layertools -jar application.jar extract
