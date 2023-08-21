@@ -600,7 +600,7 @@ public class AuthorizationConfig {
                     设置token签发地址(http(s)://{ip}:{port}/context-path, http(s)://domain.com/context-path)
                     如果需要通过ip访问这里就是ip，如果是有域名映射就填域名，通过什么方式访问该服务这里就填什么
                  */
-                .issuer("https://oauth.flow-cloud.love")
+                .issuer("https://api-flow.bunnyenv.com")
                 .build();
     }
 
