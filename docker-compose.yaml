@@ -5,7 +5,6 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
-      target: dev
     environment:
       - DB_HOST=${DB_HOST:-localhost}
       - DB_PORT=${DB_PORT:-3306}
