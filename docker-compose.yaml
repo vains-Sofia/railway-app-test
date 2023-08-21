@@ -1,0 +1,19 @@
+version: '3'
+services:
+  api:
+    container_name: authorization-server
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      target: dev
+    environment:
+      - DB_HOST=${DB_HOST:-localhost}
+      - DB_PORT=${DB_PORT:-3306}
+      - DB_USER=${DB_USER:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-root}
+      - REDIS_URL=${REDIS_URL:-redis://127.0.0.1:6379}
+    platform: linux/x86_64
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./../:/app
