@@ -111,7 +111,7 @@ public class AuthorizationConfig {
      */
     private final String LOGIN_URL = "https://vains-sofia.gitee.io/login";
 
-    private static final String CUSTOM_CONSENT_REDIRECT_URI = "/oauth2/consent/redirect";
+    private static final String CUSTOM_CONSENT_REDIRECT_URI = "https://oauth2.flow-cloud.love/oauth2/consent/redirect";
 
     private static final String CUSTOM_DEVICE_REDIRECT_URI = "/activate/redirect";
 
@@ -600,7 +600,7 @@ public class AuthorizationConfig {
                     设置token签发地址(http(s)://{ip}:{port}/context-path, http(s)://domain.com/context-path)
                     如果需要通过ip访问这里就是ip，如果是有域名映射就填域名，通过什么方式访问该服务这里就填什么
                  */
-                .issuer("https://oauth.flow-cloud.love")
+                .issuer("https://oauth2.flow-cloud.love")
                 .build();
     }
 
