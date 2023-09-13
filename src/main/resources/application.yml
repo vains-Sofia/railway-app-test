@@ -21,7 +21,7 @@ spring:
             # 客户端秘钥，使用自己的gitee的客户端秘钥
             client-secret: 59b069e525b84cac8fcb854148b623743eefd6bbe9d54433c006ec0c2f785c4d
             # 回调地址
-            redirect-uri: https://oauth2.flow-cloud.love/login/oauth2/code/gitee
+            redirect-uri: https://cloud-forget493481889.b4a.run/login/oauth2/code/gitee
             # 申请scope列表
             scope:
               - emails
@@ -43,7 +43,7 @@ spring:
             # 客户端秘钥，使用自己的微信的app secret
             client-secret: e4635ff2ed22c83294394ac818cf75a7
             # 回调地址
-            redirect-uri: https://oauth2.flow-cloud.love/login/oauth2/code/wechat
+            redirect-uri: https://cloud-forget493481889.b4a.run/login/oauth2/code/wechat
             # 申请scope列表
             scope: snsapi_userinfo
 
