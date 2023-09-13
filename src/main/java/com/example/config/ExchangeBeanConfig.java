@@ -1,6 +1,8 @@
 package com.example.config;
 
-import com.example.exchange.MineExchange;
+import com.example.exchange.ProjectExchange;
+import com.example.property.CustomSecurityProperties;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -13,7 +15,10 @@ import org.springframework.web.service.invoker.HttpServiceProxyFactory;
  * @author vains
  */
 @Configuration
+@RequiredArgsConstructor
 public class ExchangeBeanConfig {
+
+    private final CustomSecurityProperties securityProperties;
 
     /**
      * 注入MineExchange
@@ -21,12 +26,12 @@ public class ExchangeBeanConfig {
      * @return MineExchange
      */
     @Bean
-    public MineExchange mineExchange() {
-        WebClient webClient = WebClient.builder().baseUrl("https://api-17683906991.b4a.run").build();
+    public ProjectExchange mineExchange() {
+        WebClient webClient = WebClient.builder().baseUrl(securityProperties.getIssuerUrl()).build();
         HttpServiceProxyFactory httpServiceProxyFactory =
                 HttpServiceProxyFactory.builder(WebClientAdapter.forClient(webClient))
                         .build();
-        return httpServiceProxyFactory.createClient(MineExchange.class);
+        return httpServiceProxyFactory.createClient(ProjectExchange.class);
     }
 
 }
