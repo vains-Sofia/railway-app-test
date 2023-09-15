@@ -31,6 +31,8 @@ spring:
             provider: github
             client-id: 88c69e87b2e50d2dab4d
             client-secret: 350b351e8287fc142d01082bcf0dc5c6df7c21ae
+            # 回调地址
+            redirect-uri: https://cloud-forget493481889.b4a.run/login/oauth2/code/github
           wechat:
             # 微信登录配置
             provider: wechat
