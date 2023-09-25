@@ -1,5 +1,6 @@
 package com.example.config;
 
+import com.example.exchange.GiteeExchange;
 import com.example.exchange.ProjectExchange;
 import com.example.property.CustomSecurityProperties;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,21 @@ public class ExchangeBeanConfig {
                 HttpServiceProxyFactory.builder(WebClientAdapter.forClient(webClient))
                         .build();
         return httpServiceProxyFactory.createClient(ProjectExchange.class);
+    }
+
+    /**
+     * 注入Gitee Exchange
+     *
+     * @return GiteeExchange
+     */
+    @Bean
+    public GiteeExchange giteeExchange() {
+        String giteeUrl = "https://gitee.com";
+        WebClient webClient = WebClient.builder().baseUrl(giteeUrl).build();
+        HttpServiceProxyFactory httpServiceProxyFactory =
+                HttpServiceProxyFactory.builder(WebClientAdapter.forClient(webClient))
+                        .build();
+        return httpServiceProxyFactory.createClient(GiteeExchange.class);
     }
 
 }
