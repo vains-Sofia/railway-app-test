@@ -1,36 +1,20 @@
 package com.example.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.example.constant.SecurityConstants;
-import com.example.entity.Oauth2BasicUser;
-import com.example.entity.Oauth2ThirdAccount;
-import com.example.entity.SysAuthority;
 import com.example.model.Result;
-import com.example.model.response.Oauth2UserinfoResult;
-import com.example.model.security.CustomGrantedAuthority;
 import com.example.property.CustomSecurityProperties;
-import com.example.service.IOauth2BasicUserService;
-import com.example.service.IOauth2ThirdAccountService;
-import com.example.service.ISysAuthorityService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.springframework.beans.BeanUtils;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsent;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsentService;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.WebAttributes;
@@ -49,7 +33,6 @@ import org.springframework.web.util.UriUtils;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.example.constant.SecurityConstants.NONCE_HEADER_NAME;
 
@@ -62,12 +45,6 @@ import static com.example.constant.SecurityConstants.NONCE_HEADER_NAME;
 @RequiredArgsConstructor
 public class AuthorizationController {
 
-    private final ISysAuthorityService authorityService;
-
-    private final IOauth2BasicUserService basicUserService;
-
-    private final IOauth2ThirdAccountService thirdAccountService;
-
     private final CustomSecurityProperties customSecurityProperties;
 
     private final RegisteredClientRepository registeredClientRepository;
@@ -75,105 +52,6 @@ public class AuthorizationController {
     private final OAuth2AuthorizationConsentService authorizationConsentService;
 
     private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
-
-    @ResponseBody
-    @GetMapping("/user")
-    public Oauth2UserinfoResult user(Principal principal) {
-        Oauth2UserinfoResult result = new Oauth2UserinfoResult();
-
-        // 账号密码模式登陆
-        if (principal instanceof UsernamePasswordAuthenticationToken token) {
-            if (token.getPrincipal() instanceof Oauth2BasicUser user) {
-                BeanUtils.copyProperties(user, result);
-                result.setSub(principal.getName());
-                return result;
-            }
-
-        }
-
-        if (!(principal instanceof JwtAuthenticationToken jwtAuthenticationToken)) {
-            return result;
-        }
-        // 获取jwt解析内容
-        Jwt token = jwtAuthenticationToken.getToken();
-        Object uniqueId = token.getClaim("uniqueId");
-        // 获取当前用户的账号
-        String account = uniqueId == null ? principal.getName() : (String) uniqueId;
-        // 获取scope
-        List<String> scopes = token.getClaimAsStringList("scope");
-        List<String> claimAsStringList = token.getClaimAsStringList(SecurityConstants.AUTHORITIES_KEY);
-        if (!ObjectUtils.isEmpty(claimAsStringList)) {
-            scopes = null;
-        }
-        LambdaQueryWrapper<Oauth2BasicUser> accountWrapper = Wrappers.lambdaQuery(Oauth2BasicUser.class)
-                .eq(Oauth2BasicUser::getAccount, account);
-        Oauth2BasicUser basicUser = basicUserService.getOne(accountWrapper);
-        if (basicUser != null) {
-            // 填充用户的权限信息
-            this.fillUserAuthority(claimAsStringList, basicUser, scopes);
-            BeanUtils.copyProperties(basicUser, result);
-            // 设置idToken的sub信息
-            String sub = token.getClaimAsString(JwtClaimNames.SUB);
-            result.setSub(sub);
-            // 根据用户信息查询三方登录信息
-            LambdaQueryWrapper<Oauth2ThirdAccount> userIdWrapper =
-                    Wrappers.lambdaQuery(Oauth2ThirdAccount.class)
-                            .eq(Oauth2ThirdAccount::getUserId, basicUser.getId());
-            Oauth2ThirdAccount oauth2ThirdAccount = thirdAccountService.getOne(userIdWrapper);
-            if (oauth2ThirdAccount == null) {
-                return result;
-            }
-            result.setCredentials(oauth2ThirdAccount.getCredentials());
-            result.setThirdUsername(oauth2ThirdAccount.getThirdUsername());
-            result.setCredentialsExpiresAt(oauth2ThirdAccount.getCredentialsExpiresAt());
-            return result;
-        }
-        // 根据当前sub去三方登录表去查
-        LambdaQueryWrapper<Oauth2ThirdAccount> wrapper = Wrappers.lambdaQuery(Oauth2ThirdAccount.class)
-                .eq(Oauth2ThirdAccount::getUniqueId, account)
-                .eq(Oauth2ThirdAccount::getType, token.getClaim("loginType"));
-        Oauth2ThirdAccount oauth2ThirdAccount = thirdAccountService.getOne(wrapper);
-        if (oauth2ThirdAccount == null) {
-            return result;
-        }
-        // 查到之后反查基础用户表
-        Oauth2BasicUser oauth2BasicUser = basicUserService.getById(oauth2ThirdAccount.getUserId());
-        BeanUtils.copyProperties(oauth2BasicUser, result);
-        // 填充用户的权限信息
-        this.fillUserAuthority(claimAsStringList, oauth2BasicUser, scopes);
-        // 复制基础用户信息
-        BeanUtils.copyProperties(oauth2BasicUser, result);
-        // 设置idToken的sub信息
-        String sub = token.getClaimAsString(JwtClaimNames.SUB);
-        result.setSub(sub);
-        // 设置三方用户信息
-        result.setLocation(oauth2ThirdAccount.getLocation());
-        result.setCredentials(oauth2ThirdAccount.getCredentials());
-        result.setThirdUsername(oauth2ThirdAccount.getThirdUsername());
-        result.setCredentialsExpiresAt(oauth2ThirdAccount.getCredentialsExpiresAt());
-        return result;
-    }
-
-    private void fillUserAuthority(List<String> claimAsStringList, Oauth2BasicUser basicUser, List<String> scopes) {
-        if (ObjectUtils.isEmpty(claimAsStringList)) {
-            // 如果获取不到权限信息去数据库查
-            List<SysAuthority> sysAuthorities = authorityService.getByUserId(basicUser.getId());
-            Set<CustomGrantedAuthority> authorities = sysAuthorities.stream()
-                    .map(SysAuthority::getAuthority)
-                    .map(CustomGrantedAuthority::new)
-                    .collect(Collectors.toSet());
-            if (!ObjectUtils.isEmpty(scopes)) {
-                scopes.stream().map(CustomGrantedAuthority::new).forEach(authorities::add);
-            }
-            basicUser.setAuthorities(authorities);
-        } else {
-            Set<CustomGrantedAuthority> authorities = claimAsStringList.stream()
-                    .map(CustomGrantedAuthority::new)
-                    .collect(Collectors.toSet());
-            // 否则设置为token中获取的
-            basicUser.setAuthorities(authorities);
-        }
-    }
 
     @GetMapping("/activate")
     public String activate(@RequestParam(value = "user_code", required = false) String userCode) {
@@ -202,6 +80,27 @@ public class AuthorizationController {
     @GetMapping(value = "/", params = "success")
     public String success() {
         return "device-activated";
+    }
+
+    @ResponseBody
+    @GetMapping(value = "/")
+    public String index() {
+        return """
+                    <h3>根目录什么都没有，试着发起授权申请流程吧</h3>
+                    简单说下为什么会跳转到根目录，大概有以下几种情况：<br>
+                    <ol>
+                        <li>最一开始直接访问认证服务的跟目录，被项目重定向到登录页面(前后端不分离)，在登录页面登录成功后请求会到这里</li>
+                        <li>直接访问登录页面(前后端不分离)，在登录页面登录成功后请求会到这里</li>
+                        <li>前后端分离的情况下直接访问前端的登录页面，使用三方登录成功后会被重定向到这里</li>
+                    </ol>
+                    Security有一个机制，当请求被重定向到登录页面时会存储这个请求，在登录成功后从缓存中获取这个请求并重定向到该请求，从缓存中获取请求失败后会默认重定向到根目录，
+                    所以上边第2中情况会重定向到根目录；<br>
+                    再来说一下第3种情况，因为认证服务集成了联合身份认证，三方应用的授权申请都由认证服务发起，包括回调地址也由认证服务处理，
+                    所以三方登录成功后它的回调地址是认证服务，认证服务通过授权码获取到认证信息(三方应用登录的accessToken和用户信息)时会有一个跳转，跳转的逻辑和上边的一样，都是
+                    从缓存中获取跳转登录之前存储的地址，如果是走认证服务的授权申请流程就是(/oauth2/authorize)接口，但是如果直接访问前端登录页面在通过三方登录就获取不到缓存中的
+                    地址，所以默认就跳转到根目录了。<br>
+                    如果还有别的情况也可以继续补充。
+                """;
     }
 
     @GetMapping("/login")
@@ -288,6 +187,11 @@ public class AuthorizationController {
                                                      String clientId,
                                                      String userCode,
                                                      Principal principal) {
+
+        if (principal == null) {
+            throw new RuntimeException("认证信息已失效.");
+        }
+
         // Remove scopes that were already approved
         Set<String> scopesToApprove = new HashSet<>();
         Set<String> previouslyApprovedScopes = new HashSet<>();
